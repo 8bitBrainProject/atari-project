@@ -16,6 +16,17 @@ RESOURCES:
 import torch
 from agents.DqnAgent import DqnAgent
 
-if __name__ == "__main__":
+def main():
+    """
+    main
+
+    Returns
+    -------
+    None.
+
+    """
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    DqnAgent(device)
+    agent = DqnAgent(state_size=8, action_size=4, seed=0)
+
+if __name__ == "__main__":
+    main()
