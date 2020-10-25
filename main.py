@@ -13,10 +13,9 @@ DESCRIPTION: main - run everything from here
 RESOURCES:
 
 """
+import torch
 from agents.DqnAgent import DqnAgent
 
-def main(msg='replace_me'):
-    return print(msg)
-
 if __name__ == "__main__":
-    main()
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    DqnAgent(device)
