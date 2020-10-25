@@ -24,7 +24,6 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-from agents.behaviors.ReplayMemory import ReplayMemory
 import config.dqn_settings as dqn_settings
 from models.QNetwork import QNetwork
 
