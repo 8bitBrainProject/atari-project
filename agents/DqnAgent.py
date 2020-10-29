@@ -121,8 +121,9 @@ class DqnAgent():
 
         Returns
         -------
-        image_data : numpy array
-            A much smaller and more computationally efficient image.
+        image_tensor : numpy array
+            A much smaller and more computationally efficient image, turned into a tensor for
+            use in a PyTorch neural network.
 
         """
         # See image_to_tensor & resize_and_bgr2gray from
