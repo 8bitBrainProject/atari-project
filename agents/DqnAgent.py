@@ -34,12 +34,16 @@ class DqnAgent():
 
     # TIP: to generate docstring automatically highlight function name
     #      (e.g., dqn_search), right-click, and select 'Generate docstring'
-    def __init__(self, device, seed, number_episodes=200, max_t=1000):
+    def __init__(self, state_size, action_size, device, seed, number_episodes=200, max_t=1000):
         """
         Initialization
 
         Parameters
         ----------
+        state_size : int
+            DESCRIPTION.
+        action_size : int
+            Number of possible actions at a given state for the agent to take.
         device : TYPE
             DESCRIPTION.
         seed : TYPE
@@ -57,8 +61,8 @@ class DqnAgent():
         self.number_episodes = number_episodes
         self.max_t = max_t
         self.seed = random.seed(seed)
-        self.state_size = dqn_settings.STATE_SIZE
-        self.action_size = dqn_settings.ACTION_SIZE
+        self.state_size = state_size
+        self.action_size = action_size
         self.memory = None # will initialize in dqn_search
 
         # Local QNetwork
@@ -148,6 +152,7 @@ class DqnAgent():
         # !!! Can change parameters we are saving
 
     # !!! I made game_score optional for now per discussion ... can delete if want to
+
     def dqn_search(self, pixels, game_score=None):
         """
         dqn_search is adapted from Deep-Q Network (DQN), Mnih et. al. (2015)
