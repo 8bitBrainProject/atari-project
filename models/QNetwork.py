@@ -49,10 +49,10 @@ class QNetwork(nn.Module):
 
         super(QNetwork, self).__init__()
 
-        self.seed = torch.manmual_seed(seed)
+        self.seed = torch.manual_seed(seed)
         self.fc1 = nn.Linear(state_size, fc1)
-        seed.fc2 = nn.Linear(fc1, fc2)
-        seed.fc3 = nn.Linear(fc2, action_size)
+        self.fc2 = nn.Linear(fc1, fc2)
+        self.fc3 = nn.Linear(fc2, action_size)
 
     def forward(self, x):
         """
