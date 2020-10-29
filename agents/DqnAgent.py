@@ -19,6 +19,8 @@ RESOURCES:
 
 """
 import random
+import numpy as np
+import cv2
 
 import torch
 import torch.nn.functional as F
@@ -119,11 +121,26 @@ class DqnAgent():
 
         Returns
         -------
-        None.
+        image_tensor : numpy array
+            A much smaller and more computationally efficient image, turned into a tensor for
+            use in a PyTorch neural network.
 
         """
         # See image_to_tensor & resize_and_bgr2gray from
         # https://github.com/nevenp/dqn_flappy_bird/blob/master/dqn.py
+
+        image = image[16:288, 0:404] # Value of 16 cuts off the scoreboard
+        image_data = cv2.cvtColor(cv2.resize(image, (84, 84)), 
+                                  cv2.COLOR_BGR2GRAY).astype(np.uint8)
+        image_data[image_data > 0] = 255
+
+
+        image_tensor = image.transpose(2, 0, 1)
+        image_tensor = torch.from_numpy(image_tensor)
+        if torch.cuda.is_available():
+            image_tensor = image_tensor.cuda()
+
+        return image_tensor    
 
     def replay_memory(self, action_size, buffer_size, batch_size, seed):
         """
