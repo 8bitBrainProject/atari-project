@@ -22,7 +22,7 @@ BUFFER_SIZE = int(1e5)
 BATCH_SIZE = 64
 
 # Discount Factor (Gamma)
-GAMMA = 0.99
+GAMMA = 0.9999
 
 # Soft Update of Target Parameters (Tau)
 TAU = 1e-3
@@ -32,3 +32,7 @@ LEARNING_RATE = 5e-4
 
 # Frequency to update the network (seconds)
 UPDATE_FREQUENCY = 4
+
+# Epsilon values for iteration
+INITIAL_EPSILON = 1.00
+FINAL_EPSILON = 0.0001
