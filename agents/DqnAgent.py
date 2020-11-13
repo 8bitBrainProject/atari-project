@@ -20,14 +20,10 @@ RESOURCES:
 """
 import random
 import numpy as np
-import cv2
-
-import torch
-import torch.nn.functional as F
-import torch.optim as optim
+import tensorflow as tf
 
 import config.dqn_settings as dqn_settings
-from models.QNetwork import QNetwork
+from models.QNetwork import AtariModel
 
 class DqnAgent():
     """
@@ -36,7 +32,7 @@ class DqnAgent():
 
     # TIP: to generate docstring automatically highlight function name
     #      (e.g., dqn_search), right-click, and select 'Generate docstring'
-    def __init__(self, state_size, action_size, device, seed, max_t=1000):
+    def __init__(self, action_size):
         """
         Initialization
 
@@ -60,28 +56,10 @@ class DqnAgent():
         None.
 
         """
-        self.max_t = max_t
-        self.seed = random.seed(seed)
-        self.state_size = state_size
-        self.action_size = action_size
         self.epsilon = dqn_settings.INITIAL_EPSILON
-        self.final_epsilon = dqn_settings.FINAL_EPSILON
-        self.iteration_speed = dqn_settings.GAMMA
-        self.memory = None # will initialize in dqn_search
-        self.replay_memory = []
+        self.action_size = action_size
 
-        # Local QNetwork
-        self.qnetwork_local = QNetwork(self.state_size,
-                                       self.action_size, seed).to(device)
-
-        # Target QNetwork
-        self.qnetwork_target = QNetwork(self.state_size,
-                                        self.action_size, seed).to(device)
-
-        self.optimizer = optim.Adam(self.qnetwork_local.parameters(),
-                                    lr=dqn_settings.LEARNING_RATE)
-
-    def choose_action(self, state):
+    def choose_action(self, states, model):
         """
 
 
@@ -96,49 +74,21 @@ class DqnAgent():
 
         """
 
-        #action = torch.zeros([self.action_size], dtype=torch.uint8)
-
-        output = self.qnetwork_local(state)[0]
-        
         if (random.random() < self.epsilon):
-            action = random.randrange(0, (self.action_size - 1))
-            print("Random action taken!\n")
+
+            action = random.randrange(0, self.action_size)    
+            print("Random action taken:", action)
+        
         else:
-            action = torch.argmax(output)
-            print(action)
 
-        return action
+            np_states = np.array(states)
+            np_actions = np.ones((len(states), self.action_size))
 
-    def iterate_epsilon(self):
-        """
+            next_Q_values = model.predict([np_states, np_actions])
+            action = np.argmax(next_Q_values, axis=1)[0]
+            print("Learned action taken:", action)
 
-        Parameters
-        ----------
-
-        Returns
-        -------
-        None.
-
-
-        """
-        self.epsilon = self.epsilon * self.iteration_speed
-        return self.epsilon <= self.final_epsilon
-            
-
-    def predict_next_state(self, state):
-        """
-
-
-        Parameters
-        ----------
-        state : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
-        """
+        return action    
 
     def image_preprocessing(self, image):
         """
@@ -159,35 +109,35 @@ class DqnAgent():
         # See image_to_tensor & resize_and_bgr2gray from
         # https://github.com/nevenp/dqn_flappy_bird/blob/master/dqn.py
 
-        image = image[16:288, 0:404] # Value of 16 cuts off the scoreboard
-        image_data = cv2.cvtColor(cv2.resize(image, (84, 84)), 
-                                  cv2.COLOR_BGR2GRAY)
-        image_data[image_data > 0] = 255
+        image = np.mean(image, axis=2).astype(np.uint8)
+        image = image[::2, ::2]
+        return image
 
+    def transform_reward(self, reward):
+        return np.sign(reward) 
 
-        image_tensor = image.transpose(2, 0, 1)
-        image_tensor = image_tensor.astype(np.float32)
-        image_tensor = torch.from_numpy(image_tensor)
-        if torch.cuda.is_available():
-            image_tensor = image_tensor.cuda()
+    def fit_batch(self, model, batch, action_size):
+        
+        start_states = np.array(tuple(d[0] for d in batch))
+        actions = tuple(d[1] for d in batch)
+        next_states = np.array(tuple(d[2] for d in batch))
+        rewards = np.array(tuple(d[3] for d in batch))
+        finished = tuple(d[4] for d in batch)
 
-        return image_tensor    
+        onehot_actions = np.zeros((len(batch), action_size))
+                
+        for i, action_index in enumerate(actions):
+            onehot_actions[i][action_index] = 1
+            
+        next_Q_values = model.predict([next_states, np.ones(onehot_actions.shape)])
 
-    def dqn_search(self, pixels, game_score=None):
-        """
-        dqn_search is adapted from Deep-Q Network (DQN), Mnih et. al. (2015)
+        next_Q_values[finished] = 0
 
-        Parameters
-        ----------
-        pixels : TYPE
-            DESCRIPTION.
-        game_score : TYPE
-            DESCRIPTION.
+        Q_values = rewards + dqn_settings.GAMMA * np.max(next_Q_values, axis=1)
+        
+        Q_values_temp = np.array(Q_values).reshape((1, len(next_Q_values)))
+        Q_transposed = np.transpose(Q_values_temp)
 
-        Returns
-        -------
-        None.
-
-        """
-
-        output = self.q
+        model.fit([start_states, onehot_actions], onehot_actions * Q_transposed,
+                  epochs=1, batch_size=len(start_states), verbose=0)
+        return

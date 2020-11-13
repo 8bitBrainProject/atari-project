@@ -14,84 +14,51 @@ RESOURCES:
     Based on https://medium.com/@unnatsingh/deep-q-network-with-pytorch-d1ca6f40bfda
 
 """
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+import tensorflow as tf
+import tensorflow.keras as keras
 
-# !!! Update as you see fit, this is taken from the medium article above
-class QNetwork(nn.Module):
+import config.dqn_settings as dqn_settings
+
+class AtariModel:
+    
     """
     QNetwork - inherits from nn.Module
     """
 
-    def __init__(self, state_size, action_size, seed, fc1=64, fc2=64):
-        """
-        Initialization
+    def __init__(self):
+        self.model = None
 
-        Parameters
-        ----------
-        state_size : TYPE
-            DESCRIPTION.
-        action_size : TYPE
-            DESCRIPTION.
-        seed : TYPE
-            DESCRIPTION.
-        fc1 : TYPE, optional
-            DESCRIPTION. The default is 64.
-        fc2 : TYPE, optional
-            DESCRIPTION. The default is 64.
+    def build_atari_model(self, action_size):    
 
-        Returns
-        -------
-        None.
+        # With the functional API we need to define the inputs
+        frames_input = keras.layers.Input(dqn_settings.ATARI_SHAPE, name='frames')
+        actions_input = keras.layers.Input((action_size,), name='mask')
 
-        """
+        # Assuming that the input frames are still encoded from 0 to 255, encoding to [0, 1]
+        normalized = keras.layers.Lambda(lambda x: x / 255.0)(frames_input)
 
-        super(QNetwork, self).__init__()
+        # The first hidden layer convolves 16 8x8 filters with stride 4 with the input image
+        # and applies a rectifier nonlinearity.
+        conv_1 = keras.layers.Conv2D(filters=8, kernel_size=4, strides=4, activation='relu'
+                           )(normalized)
 
-        self.seed = torch.manual_seed(seed)
-        #self.fc1 = nn.Linear(state_size, fc1)
-        #self.fc2 = nn.Linear(fc1, fc2)
-        #self.fc3 = nn.Linear(fc2, action_size)
+        conv_2 = keras.layers.Conv2D(filters=4, kernel_size=1, strides=2, activation='relu')(conv_1)
 
-        self.conv1 = nn.Conv2d(in_channels=12, out_channels=32, kernel_size=16, stride=8)
-        self.relu1 = nn.ReLU(inplace=True)
-        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=8, stride=4)
-        self.relu2 = nn.ReLU(inplace=True)
-        self.conv3 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1)
-        self.relu3 = nn.ReLU(inplace=True)
-        self.fc4 = nn.Linear(128, 1)
-        self.relu4 = nn.ReLU(inplace=True)
-        self.fc5 = nn.Linear(1, action_size)
+        conv_flattened = keras.layers.Flatten()(conv_2)
+
+        hidden = keras.layers.Dense(256, activation='relu')(conv_flattened)
+
+        output = keras.layers.Dense(action_size)(hidden)
+
+        filtered_output = keras.layers.Multiply()([output, actions_input])
+
+        self.model = keras.models.Model([frames_input, actions_input], filtered_output)
+
+        optimizer = keras.optimizers.RMSprop(lr=dqn_settings.LEARNING_RATE,
+                                             rho=dqn_settings.RHO,
+                                             epsilon=0.1)
+
+        self.model.compile(optimizer, loss='mse')
+        
 
 
-    def forward(self, x):
-        """
-
-        Parameters
-        ----------
-        x : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        TYPE
-            DESCRIPTION.
-
-        """
-        #x = F.relu(self.fc1(x))
-        #x = F.relu(self.fc2(x))
-
-        out = self.conv1(x)
-        out = self.relu1(out)
-        out = self.conv2(out)
-        out = self.relu2(out)
-        out = self.conv3(out)
-        out = self.relu3(out)
-        out = out.view(out.size()[0], -1)
-        out = self.fc4(out)
-        out = self.relu4(out)
-        out = self.fc5(out)
-
-        return out
-        #return self.fc3(x)

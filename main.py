@@ -13,11 +13,13 @@ DESCRIPTION: main - run everything from here
 RESOURCES:
 
 """
-import torch
+import tensorflow as tf
 import gym
-from agents.DqnAgent import DqnAgent
 
-NUMBER_EPISODES = 200
+import config.dqn_settings as dqn_settings
+from agents.DqnAgent import DqnAgent
+from agents.RingBuffer import RingBuffer
+from models.QNetwork import AtariModel
 
 def main():
     """
@@ -29,38 +31,68 @@ def main():
 
     """
 
-    env = gym.make('SpaceInvadersNoFrameskip-v4')
-
-    state_size = 4 
+    env = gym.make('PongNoFrameskip-v4')
     action_size = env.action_space.n
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    agent = DqnAgent(state_size=state_size, action_size=action_size, device=device, seed=0)
+    agent = DqnAgent(action_size)
 
-    for i in range(NUMBER_EPISODES):
+    nn = AtariModel()
+    nn.build_atari_model(action_size)
+    model = nn.model
+
+    memory = RingBuffer(dqn_settings.MEMORY_SIZE)
+
+
+    for i in range(dqn_settings.NUMBER_EPISODES):
 
         frame = env.reset()
-        image_data = agent.image_preprocessing(frame)
+        frame = agent.image_preprocessing(frame)
 
-        state = torch.cat((image_data, image_data, image_data, image_data)).unsqueeze(0)
-
+        state = (frame, frame, frame, frame)
         env.render()
 
         finished = False
-        
+        summed_reward = 0
+        states = [state for _ in range(dqn_settings.ACTIONS_BEFORE_UPDATE)]
+
         while not finished:
         
-            action = agent.choose_action(state)
-            final_epsilon_reached = agent.iterate_epsilon()
+            action = agent.choose_action(states, model)
 
-            frame, reward, finished, _ = env.step(action)
+            for j in range(dqn_settings.ACTIONS_BEFORE_UPDATE):
+                next_frame, reward, finished, _ = env.step(action)
+                next_frame = agent.image_preprocessing(next_frame)
+                reward = agent.transform_reward(reward)
 
-            frame = agent.image_preprocessing(frame)
-            next_state = torch.cat((state.squeeze(0)[3:, :, :], frame)).unsqueeze(0)
+                next_state = (next_frame, state[0], state[1], state[2])
 
-            state = next_state
+                states[j] = next_state
 
-            env.render()
+                summed_reward += reward
+               
+                memory.append((state, action, next_state, reward, finished))
+                
+                state = next_state
 
+                env.render()
+
+
+            minibatch = memory.sample_random_batch(dqn_settings.BATCH_SIZE)
+            
+            if (i > dqn_settings.ITERATIONS_BEFORE_FIT): 
+                agent.fit_batch(model, minibatch, action_size)
+            
+        if (agent.epsilon > dqn_settings.FINAL_EPSILON):
+            agent.epsilon = agent.epsilon * dqn_settings.GAMMA
+
+        print("Iteration:", i, " Reward:", summed_reward, "Epsilon:", agent.epsilon)
+
+        f = open("rewards.txt", "a")
+        f.write(str(summed_reward) + "\n")
+        f.close()
+
+        if (i % 100 == 0):
+            model.save('models/saved_model')
+        
 if __name__ == "__main__":
     main()
