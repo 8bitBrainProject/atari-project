@@ -71,4 +71,4 @@ def main(ppo=False, dqn=False):
 
 if __name__ == "__main__":
     # Set either ppo or dqn to True
-    main(ppo=False, dqn=False)
+    main()
