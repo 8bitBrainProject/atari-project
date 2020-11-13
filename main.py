@@ -23,11 +23,19 @@ def main(ppo=False, dqn=False):
     """
     main
 
+    Parameters
+    ----------
+    ppo : BOOLEAN, optional
+        SET TO TRUE TO RUN PPO AGENT. The default is False.
+    dqn : BOOLEAN, optional
+        SET TO TRUE TO RUN DQN AGENT. The default is False.
+
     Returns
     -------
     None.
 
     """
+
     # Running DQN Agent
     if dqn:
         env = gym.make('BreakoutDeterministic-v4')
