@@ -135,3 +135,9 @@ dmypy.json
 
 # intelliJ stuff
 /.idea
+
+# pylint
+*.stats
+
+# pytorch
+*.ckpt
