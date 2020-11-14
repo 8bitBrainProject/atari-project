@@ -19,10 +19,10 @@ RESOURCES:
 ATARI_SHAPE = (4, 105, 80)
 
 # Number of episodes to run before exiting program
-NUMBER_EPISODES = 10000
+NUMBER_EPISODES = 1000
 
 # Replay Memory Size
-MEMORY_SIZE = 25000 
+MEMORY_SIZE = 10000 
 
 # Minibatch Size
 BATCH_SIZE = 32
@@ -43,7 +43,7 @@ TAU = 1e-3
 RHO = 0.95
 
 # Learning rate
-LEARNING_RATE = 1e-3 
+LEARNING_RATE = 0.00025 
 
 # Epsilon values for iteration
 INITIAL_EPSILON = 1.00

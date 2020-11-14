@@ -59,7 +59,7 @@ class DqnAgent():
         self.epsilon = dqn_settings.INITIAL_EPSILON
         self.action_size = action_size
 
-    def choose_action(self, states, model):
+    def choose_action(self, state, model):
         """
 
 
@@ -77,16 +77,14 @@ class DqnAgent():
         if (random.random() < self.epsilon):
 
             action = random.randrange(0, self.action_size)    
-            print("Random action taken:", action)
         
         else:
 
-            np_states = np.array(states)
-            np_actions = np.ones((len(states), self.action_size))
+            np_states = np.array(state)[None, :, :, :]
+            np_actions = np.ones((1, self.action_size))
 
             next_Q_values = model.predict([np_states, np_actions])
             action = np.argmax(next_Q_values, axis=1)[0]
-            print("Learned action taken:", action)
 
         return action    
 

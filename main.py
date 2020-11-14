@@ -31,7 +31,7 @@ def main():
 
     """
 
-    env = gym.make('PongNoFrameskip-v4')
+    env = gym.make('PongDeterministic-v4')
     action_size = env.action_space.n
 
     agent = DqnAgent(action_size)
@@ -53,33 +53,28 @@ def main():
 
         finished = False
         summed_reward = 0
-        states = [state for _ in range(dqn_settings.ACTIONS_BEFORE_UPDATE)]
 
         while not finished:
         
-            action = agent.choose_action(states, model)
+            action = agent.choose_action(state, model)
 
-            for j in range(dqn_settings.ACTIONS_BEFORE_UPDATE):
-                next_frame, reward, finished, _ = env.step(action)
-                next_frame = agent.image_preprocessing(next_frame)
-                reward = agent.transform_reward(reward)
+            next_frame, reward, finished, _ = env.step(action)
+            next_frame = agent.image_preprocessing(next_frame)
+            reward = agent.transform_reward(reward)
 
-                next_state = (next_frame, state[0], state[1], state[2])
+            next_state = (next_frame, state[0], state[1], state[2])
 
-                states[j] = next_state
-
-                summed_reward += reward
+            summed_reward += reward
                
-                memory.append((state, action, next_state, reward, finished))
+            memory.append((state, action, next_state, reward, finished))
                 
-                state = next_state
+            state = next_state
 
-                env.render()
+            env.render()
 
 
-            minibatch = memory.sample_random_batch(dqn_settings.BATCH_SIZE)
-            
             if (i > dqn_settings.ITERATIONS_BEFORE_FIT): 
+                minibatch = memory.sample_random_batch(dqn_settings.BATCH_SIZE)
                 agent.fit_batch(model, minibatch, action_size)
             
         if (agent.epsilon > dqn_settings.FINAL_EPSILON):
