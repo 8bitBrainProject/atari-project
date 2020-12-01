@@ -39,9 +39,10 @@ def exponential(x, a, b):
 
 datafiles = []
 for i in range(30):
-    datafiles.append('ppo-logs/ppo pv4w 1e-4 no' + str(i) + '.txt')
+    # datafiles.append('ppo-logs/ppo pv4w 1e-4 no' + str(i) + '.txt')
     # datafiles.append('pg-logs/pg pv4w 1e-4 500 no' + str(i) + '.txt')
     # datafiles.append('ddqn-logs/ddqn pv4w 1e-4 500 no' + str(i) + '.txt')
+    datafiles.append('random-logs/random pv4w 500 no' + str(i) + '.txt')
 
 data = [[] for _ in range(len(datafiles))]
 
@@ -98,8 +99,9 @@ for curr_file in range(len(datafiles)):
 
 # plt.legend(loc='lower right')
 # plt.title('Time over 30 DDQN Runs')
-plt.title('Time over 30 PPO Runs')
+# plt.title('Time over 30 PPO Runs')
 # plt.title('Time over 30 PG Runs')
+plt.title('Time over 30 Random Runs')
 plt.xlabel('Episodes')
 plt.ylabel('Time (s)')
 # plt.ylim(-21, 21)
@@ -107,5 +109,6 @@ plt.grid(True)
 #plt.show()
 
 # plt.savefig('plots/Time over 30 DDQN Runs.png', dpi = 600)
-plt.savefig('plots/Time over 30 PPO Runs.png', dpi = 600)
+# plt.savefig('plots/Time over 30 PPO Runs.png', dpi = 600)
 # plt.savefig('plots/Time over 30 PG Runs.png', dpi = 600)
+plt.savefig('plots/Time over 30 Random Runs.png', dpi = 600)

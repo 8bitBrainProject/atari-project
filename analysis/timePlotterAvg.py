@@ -15,8 +15,9 @@ run_time_lists = numpy.zeros((num_episodes, num_runs))
 
 for curr_run in range(num_runs):
     # filename = 'ppo-logs/ppo pv4w 1e-4 no' + str(curr_run) + '.txt'
-    filename = 'pg-logs/pg pv4w 1e-4 500 no' + str(curr_run) + '.txt'
+    # filename = 'pg-logs/pg pv4w 1e-4 500 no' + str(curr_run) + '.txt'
     # filename = 'ddqn-logs/ddqn pv4w 1e-4 500 no' + str(curr_run) + '.txt'
+    filename = 'random-logs/random pv4w 500 no' + str(curr_run) + '.txt'
     curr_episode = 0
     with open(filename, 'r') as reader:
         try:
@@ -57,7 +58,8 @@ plt.errorbar(run_episodes, run_average_times, fmt='k', label='Mean')
 
 # plt.title('DDQN Cumulative Run Time over 30 Runs (mean, min, max, std)')
 # plt.title('PPO Cumulative Run Time over 30 Runs (mean, min, max, std)')
-plt.title('PG Cumulative Run Time over 30 Runs (mean, min, max, std)')
+# plt.title('PG Cumulative Run Time over 30 Runs (mean, min, max, std)')
+plt.title('Random Cumulative Run Time over 30 Runs (mean, min, max, std)')
 plt.xlabel('Episodes')
 plt.ylabel('Time (s)')
 plt.legend(loc='lower right')
@@ -67,7 +69,8 @@ plt.grid(True)
 
 # plt.savefig('plots/DDQN Cumulative Run Time over 30 Runs.png', dpi = 600)
 # plt.savefig('plots/PPO Cumulative Run Time over 30 Runs.png', dpi = 600)
-plt.savefig('plots/PG Cumulative Run Time over 30 Runs.png', dpi = 600)
+# plt.savefig('plots/PG Cumulative Run Time over 30 Runs.png', dpi = 600)
+plt.savefig('plots/Random Cumulative Run Time over 30 Runs.png', dpi = 600)
 
 # Ref:
 # https://stackoverflow.com/questions/33328774/box-plot-with-min-max-average-and-standard-deviation

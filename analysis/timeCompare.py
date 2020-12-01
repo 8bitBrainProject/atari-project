@@ -36,15 +36,17 @@ def read_files(file_prefix, num_files):
 
 # Compare two log files
 
-# title1 = 'PG'
-title1 = 'PPO'
-title2 = 'DDQN'
+# title2 = 'PPO'
+title2 = 'PG'
+# title1 = 'DDQN'
+title1 = 'Random'
 combo_fileroot = title1 + '-' + title2
 aspect = '-Time'
 
-runtimes2 = read_files('ddqn-logs/ddqn pv4w 1e-4 500 no', 30)
-runtimes1 = read_files('ppo-logs/ppo pv4w 1e-4 no', 30)
-# runtimes1 = read_files('pg-logs/pg pv4w 1e-4 500 no', 30)
+# runtimes1 = read_files('ddqn-logs/ddqn pv4w 1e-4 500 no', 30)
+# runtimes2 = read_files('ppo-logs/ppo pv4w 1e-4 no', 30)
+runtimes2 = read_files('pg-logs/pg pv4w 1e-4 500 no', 30)
+runtimes1 = read_files('random-logs/random pv4w 500 no', 30)
 runs = numpy.linspace(1, len(runtimes1), num = len(runtimes1), endpoint=True)
 
 # Calculate F-Test Two-Sample for Variances
@@ -65,7 +67,7 @@ print('-----------------------------')
 print('\\begin{figure}[H]')
 print('\\caption{' + title1 + ' vs. ' + title2 + ' -- Best values over ' + str(obs) + ' runs}')
 print('\\centering')
-print('\\includegraphics[width=8cm]{' + combo_fileroot + '.png}')
+print('\\includegraphics[width=8cm]{' + combo_fileroot + aspect + '.png}')
 print('\\label{fig:' + combo_fileroot + aspect + '}')
 print('\\end{figure}')
 print()

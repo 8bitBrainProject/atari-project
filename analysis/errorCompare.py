@@ -36,15 +36,17 @@ def read_files(file_prefix, num_files):
 
 # Compare two log files
 
-title2 = 'PPO'
-# title2 = 'PG'
-title1 = 'DDQN'
+# title2 = 'PPO'
+title1 = 'PG'
+# title1 = 'DDQN'
+title2 = 'Random'
 combo_fileroot = title1 + '-' + title2
 aspect = '-Error'
 
-avgs1 = read_files('ddqn-logs/ddqn pv4w 1e-4 500 no', 30)
-avgs2 = read_files('ppo-logs/ppo pv4w 1e-4 no', 30)
-# avgs2 = read_files('pg-logs/pg pv4w 1e-4 500 no', 30)
+# avgs1 = read_files('ddqn-logs/ddqn pv4w 1e-4 500 no', 30)
+# avgs2 = read_files('ppo-logs/ppo pv4w 1e-4 no', 30)
+avgs1 = read_files('pg-logs/pg pv4w 1e-4 500 no', 30)
+avgs2 = read_files('random-logs/random pv4w 500 no', 30)
 runs = numpy.linspace(1, len(avgs1), num = len(avgs1), endpoint=True)
 
 # Calculate F-Test Two-Sample for Variances
@@ -144,7 +146,7 @@ print('-----------------------------')
 # Plot the data
 overall_max = numpy.max([numpy.max(avgs1), numpy.max(avgs2)])
 overall_min = numpy.min([numpy.min(avgs1), numpy.min(avgs2)])
-bins = numpy.arange(overall_min, overall_max + 1, (overall_max / 10.0))
+bins = numpy.arange(overall_min - 1, overall_max + 1, (overall_max / 10.0))
 plt.hist([avgs1, avgs2], bins, label = [title1, title2])
 
 plt.title('Final running average error: ' + title1 + ' and ' + title2)

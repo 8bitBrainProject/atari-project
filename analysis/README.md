@@ -38,6 +38,7 @@ The Python modules (.py files) read the runs and plot various aspects and perfor
 * errorCompare.py: Perform F- and t-test on two error data sets; plot comparative histogram of data.
 * rewardCompare.py: Perform F- and t-test on two reward data sets; plot comparative histogram of data.
 * timeCompare.py: Perform F- and t-test on two time data sets; plot comparative histogram of data.
+* makeTheTable.py: Compiles data from logs into a table for the report
 
 ## Plots
 

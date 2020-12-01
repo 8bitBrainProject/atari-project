@@ -16,7 +16,8 @@ run_score_lists = numpy.zeros((num_episodes, num_runs))
 for curr_run in range(num_runs):
     # filename = 'ppo-logs/ppo pv4w 1e-4 no' + str(curr_run) + '.txt'
     # filename = 'pg-logs/pg pv4w 1e-4 500 no' + str(curr_run) + '.txt'
-    filename = 'ddqn-logs/ddqn pv4w 1e-4 500 no' + str(curr_run) + '.txt'
+    # filename = 'ddqn-logs/ddqn pv4w 1e-4 500 no' + str(curr_run) + '.txt'
+    filename = 'random-logs/random pv4w 500 no' + str(curr_run) + '.txt'
     curr_episode = 0
     with open(filename, 'r') as reader:
         try:
@@ -55,9 +56,10 @@ plt.errorbar(run_episodes, run_average_scores, run_std_scores,
              lw = 0.6, fmt = 'b', label = 'Std Dev')
 plt.errorbar(run_episodes, run_average_scores, fmt='k', label='Mean')
 
-plt.title('DDQN Rewards over 30 Runs (mean, min, max, std)')
+# plt.title('DDQN Rewards over 30 Runs (mean, min, max, std)')
 # plt.title('PPO Rewards over 30 Runs (mean, min, max, std)')
 # plt.title('PG Rewards over 30 Runs (mean, min, max, std)')
+plt.title('Random Rewards over 30 Runs (mean, min, max, std)')
 plt.xlabel('Episodes')
 plt.ylabel('Reward')
 plt.legend(loc='lower right')
@@ -65,9 +67,10 @@ plt.grid(True)
 
 # plt.show()
 
-plt.savefig('plots/DDQN Rewards over 30 Runs.png', dpi = 600)
+# plt.savefig('plots/DDQN Rewards over 30 Runs.png', dpi = 600)
 # plt.savefig('plots/PPO Rewards over 30 Runs.png', dpi = 600)
 # plt.savefig('plots/PG Rewards over 30 Runs.png', dpi = 600)
+plt.savefig('plots/Random Rewards over 30 Runs.png', dpi = 600)
 
 # Ref:
 # https://stackoverflow.com/questions/33328774/box-plot-with-min-max-average-and-standard-deviation
