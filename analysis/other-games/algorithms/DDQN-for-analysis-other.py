@@ -134,7 +134,7 @@ def train(forever = False, render = False):
 
     state = env.reset()
     frame_idx = 0
-    while (episode < 250): #(forever or (frame_idx < (num_frames + 1))):
+    while (episode < 2500): #(forever or (frame_idx < (num_frames + 1))):
         frame_idx += 1
         epsilon = epsilon_by_frame(frame_idx)
         action = current_model.act(state, epsilon)
@@ -225,7 +225,9 @@ if __name__ == '__main__':
     #     else:
     #         print('Did not specify log_file_name; using', log_file_name)
 
-    log_file_name = 'ddqn ' + sys.argv[2] + '1e-4 250 no' + sys.argv[3] + '.txt'
+    log_file_name = 'ddqn ' + sys.argv[2] + '1e-4 2500 no' + sys.argv[3] + '.txt'
+
+    print('Log to: ', log_file_name)
 
     # hyperparameters
     gamma = 0.99

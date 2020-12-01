@@ -23,11 +23,11 @@ python DDQN-for-analysis.py <base filename for log>
 
 ## Data
 
-Raw data logs from the 30 runs of each algorithm are in the "pg-logs," "ppo-logs," and "ddqn-logs" directories.
+Raw data logs from the 30 runs of each algorithm playing Pong are in the "pg-logs," "ppo-logs," and "ddqn-logs" directories.
 
 ## Code for Plotting and Analysis
 
-The Python modules (.py files) read the runs and plot various aspects and perform statistical analysis. As these modules are essentially quick-and-dirty utility scripts, each module is hardcoded to read a certain directory of data, so the file has to be manually changed to plot and/or analyze other data sets. In most cases this is simply uncommenting/commenting out code already written in the module.
+The Python modules (.py files) read the run data for Pong games and plot various aspects and perform statistical analysis. As these modules are essentially quick-and-dirty utility scripts, each module is hardcoded to read a certain directory of data, so the file has to be manually changed to plot and/or analyze other data sets. In most cases this is simply uncommenting/commenting out code already written in the module.
 
 * errorPlotterMulti.py: Plot the running mean of error vs. episode for 30 runs.
 * rewardPlotterMulti.py: Plot the running mean of reward vs. episode for 30 runs.
@@ -42,8 +42,12 @@ The Python modules (.py files) read the runs and plot various aspects and perfor
 
 ## Plots
 
-Generated plots are stored in the "plots" directory.
+Generated plots for Pong games are stored in the "plots" directory.
 
 # Exploration
 
-The "exploration" directory holds artifacts from an informal ad-hoc exploration of algorithms and parameters. The reward data from various runs are in its "logs" directory, plots in its "plots" directory, and the code "rewardPlotterMulti.py" plots arbitrary reward vs. episode log files.
+The "exploration" directory holds artifacts from an informal ad-hoc exploration of algorithms and parameters for playing Pong. The reward data from various runs are in its "logs" directory, plots in its "plots" directory, and the code "rewardPlotterMulti.py" plots arbitrary reward vs. episode log files.
+
+# Other Games
+
+The "other-games" directory holds its own microcosm of the above structure to support a short exploration of using these algorithms to play other games.
