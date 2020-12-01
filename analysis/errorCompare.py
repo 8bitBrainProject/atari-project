@@ -24,9 +24,9 @@ def read_files(file_prefix, num_files):
            while (curr_line):
                 data_list = list(curr_line.split("\t"))
                 if (filename.startswith('ppo')):
-                    last_avg = float(data_list[6]) * -1.0 # error
+                    last_avg = 21.0 - float(data_list[6]) # error
                 else:
-                    last_avg = float(data_list[2]) * -1.0 # error
+                    last_avg = 21.0 - float(data_list[2]) # error
                 curr_line = reader.readline()
 
         avgs.append(last_avg)
@@ -146,7 +146,7 @@ print('-----------------------------')
 # Plot the data
 overall_max = numpy.max([numpy.max(avgs1), numpy.max(avgs2)])
 overall_min = numpy.min([numpy.min(avgs1), numpy.min(avgs2)])
-bins = numpy.arange(overall_min - 1, overall_max + 1, (overall_max / 10.0))
+bins = numpy.arange(overall_min - 2, overall_max + 2, (overall_max / 10.0))
 plt.hist([avgs1, avgs2], bins, label = [title1, title2])
 
 plt.title('Final running average error: ' + title1 + ' and ' + title2)

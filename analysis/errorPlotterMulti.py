@@ -41,8 +41,8 @@ datafiles = []
 for i in range(30):
     # datafiles.append('ppo-logs/ppo pv4w 1e-4 no' + str(i) + '.txt')
     # datafiles.append('pg-logs/pg pv4w 1e-4 500 no' + str(i) + '.txt')
-    # datafiles.append('ddqn-logs/ddqn pv4w 1e-4 500 no' + str(i) + '.txt')
-    datafiles.append('random-logs/random pv4w 500 no' + str(i) + '.txt')
+    datafiles.append('ddqn-logs/ddqn pv4w 1e-4 500 no' + str(i) + '.txt')
+    # datafiles.append('random-logs/random pv4w 500 no' + str(i) + '.txt')
 
 data = [[] for _ in range(len(datafiles))]
 
@@ -57,10 +57,10 @@ for curr_file in range(len(datafiles)):
     errors = None
     if (datafiles[curr_file].startswith('ppo')):
         eps = (data[curr_file][:, 0] * 10) + data[curr_file][:, 1] + 1
-        errors = data[curr_file][:, 5] * -1.0
+        errors = data[curr_file][:, 5] * -1.0 + 21.0
     else:
         eps = data[curr_file][:, 0]
-        errors = data[curr_file][:, 1] * -1.0
+        errors = data[curr_file][:, 1] * -1.0 + 21.0
     #plt.plot(eps, errors)
 
     if (len(eps) > max_eps):
@@ -98,18 +98,18 @@ for curr_file in range(len(datafiles)):
     # plt.plot(future_eps, exponential(future_eps, *pars))
 
 # plt.legend(loc='lower right')
-# plt.title('Error over 30 DDQN Runs')
+plt.title('Error over 30 DDQN Runs')
 # plt.title('Error over 30 PPO Runs')
 # plt.title('Error over 30 PG Runs')
-plt.title('Error over 30 Random Runs')
+# plt.title('Error over 30 Random Runs')
 plt.xlabel('Episodes')
 plt.ylabel('Running Average Error')
-plt.ylim(-21, 21)
+plt.ylim(0, 42)
 plt.grid(True)
 #plt.show()
 
-# plt.savefig('plots/Error over 30 DDQN Runs.png', dpi = 600)
+plt.savefig('plots/Error over 30 DDQN Runs.png', dpi = 600)
 # plt.savefig('plots/Error over 30 PPO Runs.png', dpi = 600)
 # plt.savefig('plots/Error over 30 PG Runs.png', dpi = 600)
-plt.savefig('plots/Error over 30 Random Runs.png', dpi = 600)
+# plt.savefig('plots/Error over 30 Random Runs.png', dpi = 600)
 

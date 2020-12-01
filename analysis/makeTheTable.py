@@ -23,11 +23,11 @@ def read_files(file_prefix, num_files):
                 data_list = list(curr_line.split("\t"))
                 if (filename.startswith('ppo')):
                     curr_data[0] = float(data_list[6])
-                    curr_data[1] = float(data_list[6]) * -1.0
+                    curr_data[1] = 21 - float(data_list[6])
                     curr_data[2] = float(data_list[7])
                 else:
                     curr_data[0] = float(data_list[2])
-                    curr_data[1] = float(data_list[2]) * -1.0
+                    curr_data[1] = 21 - float(data_list[2])
                     curr_data[2] = float(data_list[3])
                 curr_line = reader.readline()
         data.append(curr_data)
@@ -48,7 +48,7 @@ data4 = read_files('ddqn-logs/ddqn pv4w 1e-4 500 no', 30)
 runs = numpy.linspace(1, len(data1), num = len(data1), endpoint=True)
 
 for i in range(30):
-    print(runs[i], '&', end = ' ')
+    print(int(runs[i]), '&', end = ' ')
     print("%.2f &" % round(data1[i][0], 2), end = ' ')
     print("%.2f &" % round(data1[i][1], 2), end = ' ')
     print("%.2f &" % round(data1[i][2], 2), end = ' ')
