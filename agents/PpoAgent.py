@@ -9,7 +9,9 @@ TEAM: 8-BIT BRAIN
 
 DESCRIPTION: PpoAgent Agent Implementation for Atari 2600 Games
              A rewardlog is output with our results for data processing/plotting
-             later.
+             later. I included extensive comments with links to documentation
+             to assist me in the learning process of using PyTorch & also to help
+             any others who are new to using PyTorch.
 RESOURCES:
     > This agent was inspired by and modeled after the PPO agent of Sagar Gubbi
         Source: https://www.sagargv.com/blog/pong-ppo/
@@ -43,7 +45,7 @@ class PpoAgent(nn.Module):
         # https://pytorch.org/docs/stable/generated/torch.nn.Module.html
         super(PpoAgent, self).__init__()
 
-        # Importing Settings for the PpoAgent
+        # Importing Settings for the PpoAgent from ppo_settings
         self.gamma = ppo_settings.GAMMA
         self.episode_clip = ppo_settings.EPISODE_CLIP
         self.learning_rate = ppo_settings.LEARNING_RATE
@@ -162,6 +164,8 @@ class PpoAgent(nn.Module):
                 deterministic=None):
         """
         forward -- this method is required for PyTorch implementation
+        The forward functiuon 'defines the network structure'
+        (source: https://pytorch.org/tutorials/beginner/former_torchies/nnft_tutorial.html)
 
         Parameters
         ----------
