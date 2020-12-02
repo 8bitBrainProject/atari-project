@@ -9,6 +9,8 @@ Then run:
 python main.py
 ```
 
+NOTE: To run any of these algorithms you need OpenAI Gym and Arcade Learning Environment installed. See the last Appendix of the Final Report for instructions.
+
 ## agents directory
 
 Modules containing the actual agents: PG, PPO, DQN, DDQN, and Random, plus a couple of support modules.
