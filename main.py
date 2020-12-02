@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-COMP 6000 FINAL PROJECT
+AI FINAL PROJECT
 
 TEAM: 8-BIT BRAIN
 
@@ -17,9 +17,12 @@ import torch
 import gym
 from agents.DqnAgent import DqnAgent
 from agents.PpoAgent import PpoAgent, run_ppo
+from agents.DdqnAgent import DdqnAgent
+from agents.PgAgent import PgAgent
+from agents.RandomAgent import RandomAgent
 
 
-def main(ppo=False, dqn=False):
+def main(ppo=False, dqn=False, ddqn=False, pg=False, random=False):
     """
     main
 
@@ -29,6 +32,12 @@ def main(ppo=False, dqn=False):
         SET TO TRUE TO RUN PPO AGENT. The default is False.
     dqn : BOOLEAN, optional
         SET TO TRUE TO RUN DQN AGENT. The default is False.
+    ddqn : BOOLEAN, optional
+        SET TO TRUE TO RUN DDQN AGENT. The default is False.
+    pg : BOOLEAN, optional
+        SET TO TRUE TO RUN PG AGENT. The default is False.
+    random : BOOLEAN, optional
+        SET TO TRUE TO RUN RANDOM AGENT. The default is False.
 
     Returns
     -------
@@ -41,7 +50,6 @@ def main(ppo=False, dqn=False):
         env = gym.make('BreakoutDeterministic-v4')
         frame = env.reset()
 
-
         state_size = 8
         print(state_size)
         action_size = env.action_space.n
@@ -49,7 +57,6 @@ def main(ppo=False, dqn=False):
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         agent = DqnAgent(state_size=state_size, action_size=action_size, device=device, seed=0)
-
 
         env.render()
 
@@ -65,10 +72,25 @@ def main(ppo=False, dqn=False):
         policy = PpoAgent()
         run_ppo(policy)
 
+    # Running DDQN Agent
+    elif ddqn:
+        ddqn_agent = DdqnAgent()
+        ddqn_agent.run_ddqn()
+
+    # Running PG Agent
+    elif pg:
+        pg_agent = PgAgent()
+        pg_agent.run_pg()
+
+    # Running Random Agent
+    elif random:
+        random_agent = RandomAgent()
+        random_agent.run_random()
+
     # If neither agent is selected a message will print asking to select one
     else:
-        print('No agent selected to run! Please select an agent: dqn, ppo')
+        print('No agent selected to run! Please select an agent: dqn, ppo, ddqn, pg')
 
 if __name__ == "__main__":
-    # Set either ppo or dqn to True
-    main()
+    # Set one of these to True
+    main(ppo=False, dqn=False, ddqn=False, pg=False)
