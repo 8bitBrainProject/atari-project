@@ -1,5 +1,5 @@
 """
-COMP 6000 FINAL PROJECT
+COMP 5600/6600/6606 FINAL PROJECT
 
 TEAM: 8-BIT BRAIN
 
@@ -8,23 +8,25 @@ TEAM: 8-BIT BRAIN
 @author: Jacob Parmer (jdp0061@auburn.edu)
 
 DESCRIPTION: PpoAgent Agent Implementation for Atari 2600 Games
-             Currently, will only run Pong
+             A rewardlog is output with our results for data processing/plotting
+             later.
 RESOURCES:
+    > This agent was inspired by and modeled after the PPO agent of Sagar Gubbi
+        Source: https://www.sagargv.com/blog/pong-ppo/
 """
-
 import random
 import gym
 import numpy as np
 import torch
-from torch.nn import functional as F
 from torch import nn
-
+from torch.nn import functional as F
 import config.ppo_settings as ppo_settings
 
 class PpoAgent(nn.Module):
     """
-    CLASS: PpoAgent
-    DESCRIPTION:
+    CLASS:          PpoAgent
+    DESCRIPTION:    A Proximal Policy Optimization (PPO) Agent Implementation
+    NOTES:          Inherits from the PyTorch nn.Module
     """
 
     def __init__(self):
@@ -44,6 +46,8 @@ class PpoAgent(nn.Module):
         # Importing Settings for the PpoAgent
         self.gamma = ppo_settings.GAMMA
         self.episode_clip = ppo_settings.EPISODE_CLIP
+        self.learning_rate = ppo_settings.LEARNING_RATE
+        self.step_size = ppo_settings.STEP_SIZE
 
         # Defining a sequential container
         # https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html
@@ -51,30 +55,32 @@ class PpoAgent(nn.Module):
 
             # Applies linear transformation to incoming data
             # https://pytorch.org/docs/stable/generated/torch.nn.Linear.html
-            nn.Linear(6000, 512),
+            nn.Linear(ppo_settings.IN_FEATURES1, ppo_settings.OUT_FEATURES1),
 
             # Applies rectified linear unit function element-wise
             # https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
             nn.ReLU(),
 
             # Applies linear transformation to incoming data (see above link)
-            nn.Linear(512, 2)
+            nn.Linear(ppo_settings.IN_FEATURES2, ppo_settings.OUT_FEATURES2)
             )
 
-    def state_to_tensor(self, image):
+    def process_image(self, image):
         """
-        state_to_tensor
+        process_image
 
         Parameters
         ----------
-        I : TYPE
-            DESCRIPTION.
+        image : TENSOR
+            IMAGE TENSOR.
 
         Returns
         -------
-        None.
+        TENSOR
+            RETURNS A TENSOR FROM A NUMPY.NDARRAY.
 
         """
+
 
         if image is None:
             # Returning a tensor filled with the scalar value 0, with the shape
@@ -82,18 +88,16 @@ class PpoAgent(nn.Module):
             # https://pytorch.org/docs/stable/generated/torch.zeros.html
             return torch.zeros(1, 6000)
 
-        # Removing 35 pixels from the start & 25 pixels from the end
-        # Getting rid of parts of image that are not needed
-        image = image[35:185]
+        # Cropping the image to remove unneccessary parts
+        image = image[ppo_settings.CROP_BEGINNING:ppo_settings.CROP_END]
 
-        # Downsampling by a factor of two
-        image = image[::2, ::2, 0]
+        # Downsampling
+        image = image[::ppo_settings.DOWNSAMPLE_FACTOR,
+                      ::ppo_settings.DOWNSAMPLE_FACTOR, 0]
 
-        # Erase background (background type 1)
-        image[image == 144] = 0
-
-        # Erase background (background type 2)
-        image[image == 109] = 0
+        # Erasing background
+        image[image == ppo_settings.BACKGROUND_ERASE1] = 0
+        image[image == ppo_settings.BACKGROUND_ERASE2] = 0
 
         # Grayscale
         image[image != 0] = 1
@@ -112,27 +116,36 @@ class PpoAgent(nn.Module):
 
         Parameters
         ----------
-        image : TYPE
-            DESCRIPTION.
-        prev_image : TYPE
-            DESCRIPTION.
+        image : TENSOR
+            IMAGE.
+        prev_image : TENSOR
+            IMAGE.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
+        delta_states : TENSOR
+            DELTA_STATES.
 
         """
 
-        return self.state_to_tensor(image) - self.state_to_tensor(prev_image)
+        # Processing the current image/state
+        processed_image = self.process_image(image)
 
-    def convert_action(self, action):
+        # Processing the previous image/state
+        previous_image_processed = self.process_image(prev_image)
+
+        # Getting the delta between states
+        delta_states = processed_image - previous_image_processed
+
+        return delta_states
+
+    def get_next_step(self, step):
         """
-        convert_action
+        get_next_step
 
         Parameters
         ----------
-        action : TYPE
+        step : TYPE
             DESCRIPTION.
 
         Returns
@@ -141,31 +154,35 @@ class PpoAgent(nn.Module):
             DESCRIPTION.
 
         """
-        return action + 2
+        next_step = step + self.step_size
+
+        return next_step
 
     def forward(self, state, action=None, action_probability=None, advantage=None,
                 deterministic=None):
         """
-        forward
+        forward -- this method is required for PyTorch implementation
 
         Parameters
         ----------
         state : TYPE
             DESCRIPTION.
-        action : TYPE, optimizerional
+        action : TYPE, optional
             DESCRIPTION. The default is None.
-        action_prob : TYPE, optimizerional
+        action_probability : TYPE, optional
             DESCRIPTION. The default is None.
-        advantage : TYPE, optimizerional
+        advantage : TYPE, optional
             DESCRIPTION. The default is None.
-        deterministic : TYPE, optimizerional
+        deterministic : TYPE, optional
             DESCRIPTION. The default is None.
 
         Returns
         -------
-        None.
+        TYPE
+            DESCRIPTION.
 
         """
+
 
         if action is None:
 
@@ -189,13 +206,14 @@ class PpoAgent(nn.Module):
                 else:
                     # Creating a categorical distribution parameterized by logits
                     # https://pytorch.org/docs/stable/distributions.html
-                    c = torch.distributions.Categorical(logits=logits)
+                    cat_distro = torch.distributions.Categorical(logits=logits)
 
                     # Sample an action from the output of the network
-                    action = int(c.sample().cpu().numpy()[0])
+                    action = int(cat_distro.sample().cpu().numpy()[0])
 
                     # Setting the action probability
-                    action_probability = float(c.probs[0, action].detach().cpu().numpy())
+                    action_probability = float(cat_distro.probs[0, action].\
+                                               detach().cpu().numpy())
 
                 return action, action_probability
 
@@ -223,20 +241,26 @@ class PpoAgent(nn.Module):
         # https://pytorch.org/docs/stable/generated/torch.clamp.html
         loss2 = torch.clamp(r, 1-self.episode_clip, 1+self.episode_clip) * advantage
         # Returning the minimum value of all elements in the input tensor
-        loss = -torch.min(loss1, loss2)
+        calculated_loss = -torch.min(loss1, loss2)
         # Returning the mean of all elements in the input tensor
-        loss = torch.mean(loss)
+        calculated_loss = torch.mean(calculated_loss)
 
         # Returning the calculated loss
-        return loss
+        return calculated_loss
+
 
 # =============================================================================
 # END PpoAgent CLASS -- START run_ppo
 # =============================================================================
 
-def run_ppo(policy):
+def run_ppo(agent):
     """
     run_ppo
+
+    Parameters
+    ----------
+    agent : TYPE
+        DESCRIPTION.
 
     Returns
     -------
@@ -244,45 +268,62 @@ def run_ppo(policy):
 
     """
 
-    # Setting up our Pong Atari Gym environment
-    env = gym.make('PongNoFrameskip-v4')
-    env.reset()
+# =============================================================================
+# Initialization
+# =============================================================================
+
+    # Setting up our Atari Gym environment ()
+    atari_env = gym.make(ppo_settings.ATARI_GAME)
+    atari_env.reset()
 
     # Constructing an optimizerimizer
     # https://pytorch.org/docs/stable/optim.html
-    optimizer = torch.optim.Adam(policy.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(agent.parameters(),
+                                 lr=ppo_settings.LEARNING_RATE)
 
     # Initializing running_average to None
     running_average = None
 
+    # Initializing the log for recording our data for processing later
     reward_log = open('rewardlog.txt', 'a')
 
+# =============================================================================
+# Begin execution
+# =============================================================================
+
     # for each iteration
-    for it in range(100000):
-        d_obs_history, action_history, action_prob_history, reward_history = [], [], [], []
+    for it in range(ppo_settings.MAX_ITERATIONS):
+
+        # Initializing lists
+        state_history = list()
+        action_history = list()
+        probability_of_action_history = list()
+        reward_history = list()
 
         # Each iteration will have 10 episodes
-        for episode in range(10):
-            obs, prev_obs = env.reset(), None
+        for episode in range(ppo_settings.NUMBER_EPISODES):
+            image_state, prev_image_state = atari_env.reset(), None
 
-            for t in range(190000):
+            for t in range(ppo_settings.NUM_T):
                 # Rendering the Pong environment
-                env.render()
+                atari_env.render()
 
                 # Preprocessing the image
-                d_obs = policy.preprocess(obs, prev_obs)
+                processed_image_state = agent.preprocess(image_state,
+                                                          prev_image_state)
 
                 # Disabling gradient calculation
                 # https://pytorch.org/docs/stable/generated/torch.no_grad.html
                 with torch.no_grad():
-                    action, action_prob = policy(d_obs)
+                    action, probability_of_action = agent(processed_image_state)
 
-                prev_obs = obs
-                obs, reward, done, _ = env.step(policy.convert_action(action))
+                prev_image_state = image_state
+                image_state, reward, done, _ = atari_env.step(agent.get_next_step(action))
 
-                d_obs_history.append(d_obs)
+                # Appending to lists
+                state_history.append(processed_image_state)
                 action_history.append(action)
-                action_prob_history.append(action_prob)
+                probability_of_action_history.append(probability_of_action)
                 reward_history.append(reward)
 
                 if done:
@@ -292,17 +333,12 @@ def run_ppo(policy):
                                        + 0.01
                                        * reward_sum if running_average else reward_sum)
 
-                    print(('Iteration %d, Episode %d (%d timesteps) - '
-                           + 'last_action: %d, last_action_prob: %.2f, '
-                           + 'reward_sum: %.2f, running_avg: %.2f')
-                          % (it, episode, t, action, action_prob, reward_sum,
-                             running_average))
-
+                    # Writing the results to our log
                     reward_log.write(str(it) + '\t'
                                      + str(episode) + '\t'
                                      + str(t) + '\t'
                                      + str(action) + '\t'
-                                     + str(action_prob) + '\t'
+                                     + str(probability_of_action) + '\t'
                                      + str(reward_sum) + '\t'
                                      + str(running_average) + '\n')
 
@@ -310,46 +346,62 @@ def run_ppo(policy):
 
                     break
 
-        # compute advantage
+# =============================================================================
+# Calculating Advantage
+# =============================================================================
+
+        # Initializing
         R = 0
-        discounted_rewards = []
+        d_rewards = list()
 
         for r in reward_history[::-1]:
             if r != 0:
-                R = 0 # scored/lost a point in pong, so reset reward sum
-            R = r + policy.gamma * R
-            discounted_rewards.insert(0, R)
+                R = 0 # resetting
 
-        discounted_rewards = torch.FloatTensor(discounted_rewards)
-        discounted_rewards = (discounted_rewards
-                              - discounted_rewards.mean()) / discounted_rewards.std()
+            R = r + agent.gamma * R
+            d_rewards.insert(0, R)
 
-        # update policy
-        for _ in range(5):
-            n_batch = 24576
+        d_rewards = torch.FloatTensor(d_rewards)
+        d_rewards = (d_rewards - d_rewards.mean()) / d_rewards.std()
 
-            # Random number
-            idxs = random.sample(range(len(action_history)), n_batch)
+        # Updating our policy
+        for _ in range(ppo_settings.UPDATE_POLICY_RANGE):
+            num_batch = ppo_settings.NUM_BATCH
+
+            # Random number idx
+            random_idx = random.sample(range(len(action_history)), num_batch)
 
             # Concatenate the given sequence of tensors in the given dimension
             # https://pytorch.org/docs/stable/generated/torch.cat.html
-            d_obs_batch = torch.cat([d_obs_history[idx] for idx in idxs], 0)
+            state_batch = torch.\
+                cat([state_history[current_idx] for current_idx in random_idx], 0)
 
             # Specifying torch.LongTensor type, a multi-dimensional matrix containing
             # elements of a single data type. Each type has CPU and GPU variants
             # https://pytorch.org/docs/stable/tensors.html
-            action_batch = torch.LongTensor([action_history[idx] for idx in idxs])
+            action_batch = torch.\
+                LongTensor([action_history[current_idx] for current_idx in random_idx])
 
             # Specifying torch.FloatTensor type
-            action_prob_batch = torch.FloatTensor([action_prob_history[idx] for idx in idxs])
-            advantage_batch = torch.FloatTensor([discounted_rewards[idx] for idx in idxs])
+            probability_of_action_batch = torch.\
+                FloatTensor([probability_of_action_history[current_idx] for current_idx in random_idx])
+            advantage_batch = torch.\
+                FloatTensor([d_rewards[current_idx] for current_idx in random_idx])
 
             optimizer.zero_grad()
-            loss = policy(d_obs_batch, action_batch, action_prob_batch, advantage_batch)
-            loss.backward()
+
+            calculated_loss = agent(state_batch,
+                                    action_batch,
+                                    probability_of_action_batch,
+                                    advantage_batch)
+
+            calculated_loss.backward()
+            # Stepping
             optimizer.step()
 
+        # Saving Checkpoint
         if it % 5 == 0:
-            torch.save(policy.state_dict(), 'params.ckpt')
+            torch.save(agent.state_dict(), 'params.ckpt')
 
-    env.close()
+    # Complete Execution
+    atari_env.close()
