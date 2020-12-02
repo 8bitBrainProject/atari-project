@@ -164,6 +164,8 @@ class PpoAgent(nn.Module):
                 deterministic=None):
         """
         forward -- this method is required for PyTorch implementation
+        The forward functiuon 'defines the network structure'
+        (source: https://pytorch.org/tutorials/beginner/former_torchies/nnft_tutorial.html)
 
         Parameters
         ----------
