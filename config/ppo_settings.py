@@ -30,6 +30,10 @@ GAMMA = 0.99
 # Learning rate
 LEARNING_RATE = 1e-3
 
+# =============================================================================
+# Not recommended to update anything below here
+# =============================================================================
+
 # Step Size
 STEP_SIZE = 2
 
