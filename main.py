@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-AI FINAL PROJECT
+COMP 5600/6600/6606 FINAL PROJECT
 
 TEAM: 8-BIT BRAIN
 
@@ -89,8 +89,8 @@ def main(ppo=False, dqn=False, ddqn=False, pg=False, random=False):
 
     # If neither agent is selected a message will print asking to select one
     else:
-        print('No agent selected to run! Please select an agent: dqn, ppo, ddqn, pg')
+        print('No agent selected to run! Please select an agent: dqn, ppo, ddqn, pg, random')
 
 if __name__ == "__main__":
     # Set one of these to True
-    main(ppo=False, dqn=False, ddqn=False, pg=False)
+    main(ppo=False, dqn=False, ddqn=False, pg=False, random=True)

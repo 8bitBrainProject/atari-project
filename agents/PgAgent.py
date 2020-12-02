@@ -1,5 +1,5 @@
 """
-AI FINAL PROJECT
+COMP 5600/6600/6606 FINAL PROJECT
 
 TEAM: 8-BIT BRAIN
 
@@ -14,7 +14,7 @@ DESCRIPTION: PgAgent Agent Implementation for Atari 2600 Games
 
 import numpy as np
 import time
-from wrappers import make_atari, wrap_deepmind
+from agents.wrappers import make_atari, wrap_deepmind
 
 
 class PgAgent:
@@ -39,6 +39,8 @@ class PgAgent:
 
         self.grad_buffer = { k : np.zeros_like(v) for k,v in self.model.items() } # update buffers that add up gradients over a batch
         self.rmsprop_cache = { k : np.zeros_like(v) for k,v in self.model.items() } # rmsprop memory
+
+        self.epx = None
 
 
     def sigmoid(self, x):
@@ -68,7 +70,7 @@ class PgAgent:
         dW2 = np.dot(eph.T, epdlogp).ravel()
         dh = np.outer(epdlogp, self.model['W2'])
         dh[eph <= 0] = 0 # backpro prelu
-        dW1 = np.dot(dh.T, epx)
+        dW1 = np.dot(dh.T, self.epx)
         return {'W1':dW1, 'W2':dW2}
 
 
@@ -94,7 +96,7 @@ class PgAgent:
             prev_x = cur_x
 
             # forward the policy network and sample an action from the returned probability
-            aprob, h = policy_forward(x)
+            aprob, h = self.policy_forward(x)
             action = 2 if np.random.uniform() < aprob else 3 # roll the dice!
 
             # record various intermediates (needed later for backprop)
@@ -113,38 +115,38 @@ class PgAgent:
                 episode_number += 1
 
                 # stack together all inputs, hidden states, action gradients, and rewards for this episode
-                epx = np.vstack(xs)
+                self.epx = np.vstack(xs)
                 eph = np.vstack(hs)
                 epdlogp = np.vstack(dlogps)
                 epr = np.vstack(drs)
                 xs,hs,dlogps,drs = [],[],[],[] # reset array memory
 
                 # compute the discounted reward backwards through time
-                discounted_epr = discount_rewards(epr)
+                discounted_epr = self.discount_rewards(epr)
 
                 # standardize the rewards to be unit normal (helps control the gradient estimator variance)
                 discounted_epr -= np.mean(discounted_epr)
                 discounted_epr /= np.std(discounted_epr)
 
                 epdlogp *= discounted_epr # modulate the gradient with advantage (PG magic happens right here.)
-                grad = policy_backward(eph, epdlogp)
-                for k in model: grad_buffer[k] += grad[k] # accumulate grad over batch
+                grad = self.policy_backward(eph, epdlogp)
+                for k in self.model: self.grad_buffer[k] += grad[k] # accumulate grad over batch
 
                 # perform rmsprop parameter update every batch_size episodes
-                if episode_number % batch_size == 0:
-                    for k,v in model.items():
-                        g = grad_buffer[k] # gradient
-                        rmsprop_cache[k] = decay_rate * rmsprop_cache[k] + (1 - decay_rate) * g**2
-                        model[k] += learning_rate * g / (np.sqrt(rmsprop_cache[k]) + 1e-5)
-                        grad_buffer[k] = np.zeros_like(v) # reset batch gradient buffer
+                if episode_number % self.batch_size == 0:
+                    for k,v in self.model.items():
+                        g = self.grad_buffer[k] # gradient
+                        self.rmsprop_cache[k] = self.decay_rate * self.rmsprop_cache[k] + (1 - self.decay_rate) * g**2
+                        self.model[k] += self.learning_rate * g / (np.sqrt(self.rmsprop_cache[k]) + 1e-5)
+                        self.grad_buffer[k] = np.zeros_like(v) # reset batch gradient buffer
 
                 # boring book-keeping
                 running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
                 print('episode:', episode_number, 'reward:', reward_sum, 'running reward:', running_reward)
-                reward_log.write(str(episode_number) + '\t' + str(reward_sum) + '\t' + str(running_reward) + '\t' + str(time.time() - start_time) + '\n') #!!!!! support logging
-                reward_log.flush() #!!!!! support logging
-                # if episode_number % 100 == 0: pickle.dump(model, open('save_pv4w.p', 'wb'))
+                reward_log.write(str(episode_number) + '\t' + str(reward_sum) + '\t' + str(running_reward) + '\t' + str(time.time() - start_time) + '\n')
+                reward_log.flush()
                 reward_sum = 0
+
                 observation = env.reset() # reset env
                 prev_x = None
 

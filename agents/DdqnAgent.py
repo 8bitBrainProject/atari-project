@@ -1,5 +1,5 @@
 """
-AI FINAL PROJECT
+COMP 5600/6600/6606 FINAL PROJECT
 
 TEAM: 8-BIT BRAIN
 
@@ -23,7 +23,7 @@ import torch.optim as optim
 import torch.autograd as autograd
 
 from collections import deque
-from wrappers import make_atari, wrap_deepmind, wrap_pytorch
+from agents.wrappers import make_atari, wrap_deepmind, wrap_pytorch
 
 # Set up CUDA usage
 USE_CUDA = torch.cuda.is_available()
