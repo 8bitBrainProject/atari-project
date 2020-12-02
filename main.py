@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-COMP 6000 FINAL PROJECT
+COMP 5600/6600/6606 FINAL PROJECT
 
 TEAM: 8-BIT BRAIN
 
@@ -20,10 +20,28 @@ import config.dqn_settings as dqn_settings
 from agents.DqnAgent import DqnAgent
 from agents.RingBuffer import RingBuffer
 from models.QNetwork import AtariModel
+from agents.PpoAgent import PpoAgent, run_ppo
+from agents.DdqnAgent import DdqnAgent
+from agents.PgAgent import PgAgent
+from agents.RandomAgent import RandomAgent
 
-def main():
+
+def main(ppo=False, dqn=False, ddqn=False, pg=False, random=False):
     """
     main
+
+    Parameters
+    ----------
+    ppo : BOOLEAN, optional
+        SET TO TRUE TO RUN PPO AGENT. The default is False.
+    dqn : BOOLEAN, optional
+        SET TO TRUE TO RUN DQN AGENT. The default is False.
+    ddqn : BOOLEAN, optional
+        SET TO TRUE TO RUN DDQN AGENT. The default is False.
+    pg : BOOLEAN, optional
+        SET TO TRUE TO RUN PG AGENT. The default is False.
+    random : BOOLEAN, optional
+        SET TO TRUE TO RUN RANDOM AGENT. The default is False.
 
     Returns
     -------
@@ -31,6 +49,8 @@ def main():
 
     """
 
+    # Running DQN Agent
+    if dqn:
     env = gym.make('PongDeterministic-v4')
     action_size = env.action_space.n
 
@@ -62,6 +82,30 @@ def main():
             next_frame = agent.image_preprocessing(next_frame)
             reward = agent.transform_reward(reward)
 
+    # Running PPO Agent
+    elif ppo:
+        policy = PpoAgent()
+        run_ppo(policy)
+
+    # Running DDQN Agent
+    elif ddqn:
+        ddqn_agent = DdqnAgent()
+        ddqn_agent.run_ddqn()
+
+    # Running PG Agent
+    elif pg:
+        pg_agent = PgAgent()
+        pg_agent.run_pg()
+
+    # Running Random Agent
+    elif random:
+        random_agent = RandomAgent()
+        random_agent.run_random()
+
+    # If neither agent is selected a message will print asking to select one
+    else:
+        print('No agent selected to run! Please select an agent: dqn, ppo, ddqn, pg, random')
+
             next_state = (next_frame, state[0], state[1], state[2])
 
             summed_reward += reward
@@ -90,4 +134,5 @@ def main():
             model.save('models/saved_model')
         
 if __name__ == "__main__":
-    main()
+    # Set one of these to True
+    main(ppo=False, dqn=False, ddqn=False, pg=True, random=False)
