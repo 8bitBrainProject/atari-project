@@ -25,15 +25,22 @@ class RandomAgent:
         pass
 
     def run_random(self):
+        """
+        Randomly play the game. Log results.
+        """
         start_time = time.time()
 
+        # Create environment
         env = make_atari("PongNoFrameskip-v4")
         env = wrap_deepmind(env)
         observation = env.reset()
+
+        # bookkeeping values
         running_reward = None
         reward_sum = 0
         episode_number = 0
 
+        # Open load
         reward_log = open('rewardlog-random.txt', 'w')
 
         while (True):  # Run until user kills process

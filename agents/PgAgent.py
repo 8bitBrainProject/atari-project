@@ -14,6 +14,8 @@ DESCRIPTION: PgAgent Agent Implementation for Atari 2600 Games
 
 import numpy as np
 import time
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 from agents.wrappers import make_atari, wrap_deepmind
 
 
@@ -48,7 +50,9 @@ class PgAgent:
 
 
     def discount_rewards(self, r):
-        """ take 1D float array of rewards and compute discounted reward """
+        """
+        Take 1D float array of rewards and compute discounted reward
+        """
         discounted_r = np.zeros_like(r)
         running_add = 0
         for t in reversed(range(0, r.size)):
@@ -57,7 +61,11 @@ class PgAgent:
             discounted_r[t] = running_add
         return discounted_r
 
+
     def policy_forward(self, x):
+        """
+        Forward propagation of policy network
+        """
         h = np.dot(self.model['W1'], x)
         h[h<0] = 0 # ReLU nonlinearity
         logp = np.dot(self.model['W2'], h)
@@ -66,7 +74,9 @@ class PgAgent:
 
 
     def policy_backward(self, eph, epdlogp):
-        """ backward pass. (eph is array of intermediate hidden states) """
+        """
+        Backward pass. (eph is array of intermediate hidden states)
+        """
         dW2 = np.dot(eph.T, epdlogp).ravel()
         dh = np.outer(epdlogp, self.model['W2'])
         dh[eph <= 0] = 0 # backpro prelu
@@ -75,6 +85,9 @@ class PgAgent:
 
 
     def run_pg(self):
+        """
+        Core of Policy Gradient Algorithm
+        """
         start_time = time.time()
 
         env = make_atari("PongNoFrameskip-v4")
@@ -94,6 +107,7 @@ class PgAgent:
             cur_x = observation.astype(np.float).ravel()
             x = cur_x - prev_x if prev_x is not None else np.zeros(self.D)
             prev_x = cur_x
+
 
             # forward the policy network and sample an action from the returned probability
             aprob, h = self.policy_forward(x)

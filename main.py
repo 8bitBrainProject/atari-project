@@ -93,4 +93,4 @@ def main(ppo=False, dqn=False, ddqn=False, pg=False, random=False):
 
 if __name__ == "__main__":
     # Set one of these to True
-    main(ppo=False, dqn=False, ddqn=False, pg=False, random=True)
+    main(ppo=False, dqn=False, ddqn=False, pg=True, random=False)
