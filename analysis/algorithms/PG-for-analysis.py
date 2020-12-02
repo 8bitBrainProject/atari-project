@@ -1,4 +1,15 @@
-""" Trains an agent with (stochastic) Policy Gradients on Pong. Uses OpenAI Gym. """
+"""
+COMP 5600/6600/6606 FINAL PROJECT
+
+TEAM: 8-BIT BRAIN
+
+@author: Dennis Brown (dgb0028@auburn.edu)
+@author: Shannon McDade (slm0035@auburn.edu)
+@author: Jacob Parmer (jdp0061@auburn.edu)
+
+Trains an agent with (stochastic) Policy Gradients on Pong. Uses OpenAI Gym.
+"""
+
 import numpy as np
 import pickle as pickle
 import time

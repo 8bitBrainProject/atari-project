@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-COMP 6000 FINAL PROJECT
+COMP 5600/6600/6606 FINAL PROJECT
 
 TEAM: 8-BIT BRAIN
 
@@ -22,7 +22,7 @@ ATARI_SHAPE = (4, 105, 80)
 NUMBER_EPISODES = 1000
 
 # Replay Memory Size
-MEMORY_SIZE = 10000 
+MEMORY_SIZE = 10000
 
 # Minibatch Size
 BATCH_SIZE = 32
@@ -43,7 +43,7 @@ TAU = 1e-3
 RHO = 0.95
 
 # Learning rate
-LEARNING_RATE = 0.00025 
+LEARNING_RATE = 0.00025
 
 # Epsilon values for iteration
 INITIAL_EPSILON = 1.00

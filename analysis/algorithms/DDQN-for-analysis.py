@@ -1,8 +1,18 @@
+"""
+COMP 5600/6600/6606 FINAL PROJECT
+
+TEAM: 8-BIT BRAIN
+
+@author: Dennis Brown (dgb0028@auburn.edu)
+@author: Shannon McDade (slm0035@auburn.edu)
+@author: Jacob Parmer (jdp0061@auburn.edu)
+
 # https://github.com/higgsfield/RL-Adventure/blob/master/2.double%20dqn.ipynb
 
 # "ANALYSIS" version of code is hard-coded to run 500 episodes, save
 # timing information, never save network state, and save log to hardcoded
 # filename + run number supplied as single command line argument.
+"""
 
 import sys
 import math

@@ -11,7 +11,7 @@ python main.py
 
 ## agents directory
 
-Modules containing the actual agents: PG, PPO, DQN, DDQN, and Random.
+Modules containing the actual agents: PG, PPO, DQN, DDQN, and Random, plus a couple of support modules.
 
 ## models directory
 

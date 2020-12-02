@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-COMP 6000 FINAL PROJECT
+COMP 5600/6600/6606 FINAL PROJECT
 
 TEAM: 8-BIT BRAIN
 
@@ -76,8 +76,8 @@ class DqnAgent():
 
         if (random.random() < self.epsilon):
 
-            action = random.randrange(0, self.action_size)    
-        
+            action = random.randrange(0, self.action_size)
+
         else:
 
             np_states = np.array(state)[None, :, :, :]
@@ -86,7 +86,7 @@ class DqnAgent():
             next_Q_values = model.predict([np_states, np_actions])
             action = np.argmax(next_Q_values, axis=1)[0]
 
-        return action    
+        return action
 
     def image_preprocessing(self, image):
         """
@@ -112,10 +112,10 @@ class DqnAgent():
         return image
 
     def transform_reward(self, reward):
-        return np.sign(reward) 
+        return np.sign(reward)
 
     def fit_batch(self, model, batch, action_size):
-        
+
         start_states = np.array(tuple(d[0] for d in batch))
         actions = tuple(d[1] for d in batch)
         next_states = np.array(tuple(d[2] for d in batch))
@@ -123,16 +123,16 @@ class DqnAgent():
         finished = tuple(d[4] for d in batch)
 
         onehot_actions = np.zeros((len(batch), action_size))
-                
+
         for i, action_index in enumerate(actions):
             onehot_actions[i][action_index] = 1
-            
+
         next_Q_values = model.predict([next_states, np.ones(onehot_actions.shape)])
 
         next_Q_values[finished] = 0
 
         Q_values = rewards + dqn_settings.GAMMA * np.max(next_Q_values, axis=1)
-        
+
         Q_values_temp = np.array(Q_values).reshape((1, len(next_Q_values)))
         Q_transposed = np.transpose(Q_values_temp)
 

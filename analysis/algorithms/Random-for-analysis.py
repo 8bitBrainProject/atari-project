@@ -1,4 +1,15 @@
-# Play games with random actions and log results.
+"""
+COMP 5600/6600/6606 FINAL PROJECT
+
+TEAM: 8-BIT BRAIN
+
+@author: Dennis Brown (dgb0028@auburn.edu)
+@author: Shannon McDade (slm0035@auburn.edu)
+@author: Jacob Parmer (jdp0061@auburn.edu)
+
+Play games with random actions and log results.
+"""
+
 import numpy as np
 import time
 import sys

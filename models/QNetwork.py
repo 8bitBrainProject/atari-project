@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-COMP 6000 FINAL PROJECT
+COMP 5600/6600/6606 FINAL PROJECT
 
 TEAM: 8-BIT BRAIN
 
@@ -20,7 +20,7 @@ import tensorflow.keras as keras
 import config.dqn_settings as dqn_settings
 
 class AtariModel:
-    
+
     """
     QNetwork - inherits from nn.Module
     """
@@ -28,7 +28,7 @@ class AtariModel:
     def __init__(self):
         self.model = None
 
-    def build_atari_model(self, action_size):    
+    def build_atari_model(self, action_size):
 
         # With the functional API we need to define the inputs
         frames_input = keras.layers.Input(dqn_settings.ATARI_SHAPE, name='frames')
@@ -59,6 +59,6 @@ class AtariModel:
                                              epsilon=0.1)
 
         self.model.compile(optimizer, loss='mse')
-        
+
 
 
