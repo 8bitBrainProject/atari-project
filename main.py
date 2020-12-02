@@ -13,7 +13,7 @@ DESCRIPTION: main - run everything from here
 RESOURCES:
 
 """
-import tensorflow as tf
+# import tensorflow as tf
 import gym
 
 import config.dqn_settings as dqn_settings
@@ -51,88 +51,76 @@ def main(ppo=False, dqn=False, ddqn=False, pg=False, random=False):
 
     # Running DQN Agent
     if dqn:
-    env = gym.make('PongDeterministic-v4')
-    action_size = env.action_space.n
+        env = gym.make('PongDeterministic-v4')
+        action_size = env.action_space.n
+        agent = DqnAgent(action_size)
+        nn = AtariModel()
+        nn.build_atari_model(action_size)
+        model = nn.model
+        memory = RingBuffer(dqn_settings.MEMORY_SIZE)
 
-    agent = DqnAgent(action_size)
+        for i in range(dqn_settings.NUMBER_EPISODES):
+            frame = env.reset()
+            frame = agent.image_preprocessing(frame)
+            state = (frame, frame, frame, frame)
+            env.render()
+            finished = False
+            summed_reward = 0
 
-    nn = AtariModel()
-    nn.build_atari_model(action_size)
-    model = nn.model
+            while not finished:
+                action = agent.choose_action(state, model)
+                next_frame, reward, finished, _ = env.step(action)
+                next_frame = agent.image_preprocessing(next_frame)
+                reward = agent.transform_reward(reward)
+                next_state = (next_frame, state[0], state[1], state[2])
+                summed_reward += reward
+                memory.append((state, action, next_state, reward, finished))
+                state = next_state
+                env.render()
 
-    memory = RingBuffer(dqn_settings.MEMORY_SIZE)
+                if (i > dqn_settings.ITERATIONS_BEFORE_FIT):
+                    minibatch = memory.sample_random_batch(dqn_settings.BATCH_SIZE)
+                    agent.fit_batch(model, minibatch, action_size)
 
+            if (agent.epsilon > dqn_settings.FINAL_EPSILON):
+                agent.epsilon = agent.epsilon * dqn_settings.GAMMA
+            print("Iteration:", i, " Reward:", summed_reward, "Epsilon:", agent.epsilon)
+            f = open("rewards.txt", "a")
+            f.write(str(summed_reward) + "\n")
+            f.close()
+            if (i % 100 == 0):
+                model.save('models/saved_model')
 
-    for i in range(dqn_settings.NUMBER_EPISODES):
-
-        frame = env.reset()
-        frame = agent.image_preprocessing(frame)
-
-        state = (frame, frame, frame, frame)
-        env.render()
-
-        finished = False
-        summed_reward = 0
-
-        while not finished:
-        
-            action = agent.choose_action(state, model)
-
-            next_frame, reward, finished, _ = env.step(action)
-            next_frame = agent.image_preprocessing(next_frame)
-            reward = agent.transform_reward(reward)
 
     # Running PPO Agent
     elif ppo:
         policy = PpoAgent()
         run_ppo(policy)
 
+
     # Running DDQN Agent
     elif ddqn:
         ddqn_agent = DdqnAgent()
         ddqn_agent.run_ddqn()
+
 
     # Running PG Agent
     elif pg:
         pg_agent = PgAgent()
         pg_agent.run_pg()
 
+
     # Running Random Agent
     elif random:
         random_agent = RandomAgent()
         random_agent.run_random()
 
-    # If neither agent is selected a message will print asking to select one
+
+    # If no agent is selected a message will print asking to select one
     else:
         print('No agent selected to run! Please select an agent: dqn, ppo, ddqn, pg, random')
 
-            next_state = (next_frame, state[0], state[1], state[2])
 
-            summed_reward += reward
-               
-            memory.append((state, action, next_state, reward, finished))
-                
-            state = next_state
-
-            env.render()
-
-
-            if (i > dqn_settings.ITERATIONS_BEFORE_FIT): 
-                minibatch = memory.sample_random_batch(dqn_settings.BATCH_SIZE)
-                agent.fit_batch(model, minibatch, action_size)
-            
-        if (agent.epsilon > dqn_settings.FINAL_EPSILON):
-            agent.epsilon = agent.epsilon * dqn_settings.GAMMA
-
-        print("Iteration:", i, " Reward:", summed_reward, "Epsilon:", agent.epsilon)
-
-        f = open("rewards.txt", "a")
-        f.write(str(summed_reward) + "\n")
-        f.close()
-
-        if (i % 100 == 0):
-            model.save('models/saved_model')
-        
 if __name__ == "__main__":
     # Set one of these to True
-    main(ppo=False, dqn=False, ddqn=False, pg=True, random=False)
+    main(ppo=True, dqn=False, ddqn=False, pg=False, random=False)

@@ -1,24 +1,28 @@
 # What's in this directory
 
-This directory holds data and code supporting the exploratory and formal analysis of PG, PPO, and DDQN algorithms on Atari Pong with optimal settings (game = PongNoFrameskip-v4, learning rate = 1e-4).
+This directory holds data and code supporting the exploratory and formal analysis of PG, PPO, DDQN, and Random algorithms on Atari Pong with optimal settings (game = PongNoFrameskip-v4, learning rate = 1e-4).
 
 ## Algorithms
 
-The versions of PG, PPO, and DDQN used to obtain the data used in the analysis are each "snapshotted" here in the "algorithms" folder. These are each very rough versions of each algorithm that we started running as soon as they were correct and complete, but not well-organized or well-documented, in the interest of maximizing our time. They are captured here to ensure repeatability of the experiment. The modules WITHOUT "-other" play Pong, and the modules WITH "-other" play the game environment passed into the command line. The final cleaned-up version of each algorithm, which should produce the same results, can be found back at the top level of this repository.
+The versions of PG, PPO, DDQN, and Random used to obtain the data used in the analysis are each "snapshotted" here in the "algorithms" folder. These are each very rough versions of each algorithm that we started running as soon as they were correct and complete, but not well-organized or well-documented, in the interest of maximizing our time. They are captured here to ensure repeatability of the experiment. The modules WITHOUT "-other" play Pong, and the modules WITH "-other" play the game environment passed into the command line. The final cleaned-up version of each algorithm, which should produce the same results, can be found back at the top level of this repository.
 
 To run any of these algorithms you need OpenAI Gym and Arcade Learning Environment installed.
 
 * To run PG:
 ```
-python PG-for-analysis.py <base filename for log>
+python PG-for-analysis.py <starting number for logs>
 ```
 * To run PPO:
 ```
-python PPO-for-analysis.py <base filename for log>
+python PPO-for-analysis.py <starting number for logs>
 ```
 * To run DDQN:
 ```
-python DDQN-for-analysis.py <base filename for log>
+python DDQN-for-analysis.py <starting number for logs>
+```
+* To run Random:
+```
+python Random-for-analysis.py <starting number for logs>
 ```
 
 ## Data

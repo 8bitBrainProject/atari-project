@@ -115,7 +115,7 @@ class CnnDQN(nn.Module):
         return self.features(autograd.Variable(torch.zeros(1, *self.input_shape))).view(1, -1).size(1)
 
 
-    def act(self, state, epsilon):
+    def act(self, state, epsilon, num_actions):
         """
         Choose an action.
         """
@@ -124,7 +124,7 @@ class CnnDQN(nn.Module):
             q_value = self.forward(state)
             action  = q_value.max(1)[1].data[0]
         else:
-            action = random.randrange(self.env.action_space.n)
+            action = random.randrange(num_actions)
         return action
 
 
@@ -231,7 +231,7 @@ class DdqnAgent:
         while (self.forever or (frame_idx < (self.num_frames + 1))):
             frame_idx += 1
             epsilon = epsilon_by_frame(frame_idx)
-            action = self.current_model.act(state, epsilon)
+            action = self.current_model.act(state, epsilon, self.env.action_space.n)
 
             # Render the game if so configured
             if (self.render): self.env.render()

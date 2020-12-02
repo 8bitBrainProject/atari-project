@@ -27,7 +27,7 @@ NOTE: Settings for PG, DDQN, and Random are in the agent modules themselves.
 
 ## analysis directory
 
-The analysis directory holds data and code supporting the exploratory and formal analysis of PG, PPO, and DDQN algorithms on Atari Pong with optimal settings (game = PongNoFrameskip-v4, learning rate = 1e-4).
+The analysis directory holds data and code supporting the exploratory and formal analysis of PG, PPO, DDQN, and Random algorithms on Atari Pong with optimal settings (game = PongNoFrameskip-v4, learning rate = 1e-4).
 
 See the README in the analysis directory for more details.
 
