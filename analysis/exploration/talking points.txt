@@ -1,0 +1,27 @@
+
+POLICY GRADIENT:
+
+Our baseline is Karpathy's Policy Gradient algorithm for playing Pong as referenced previously. 
+
+This is an optimization problem to find policy parameters theta that maximize the policy objective by searching the problem space using the stochastic gradient, where theta is stored as weights in a neural network. 
+
+The general idea is "Run a policy for a while. See what actions led to high rewards. Increase their probability." 
+
+We made two variations of Karpathy's algorithm: Increase the learning rate ten-fold, and use an updated version of the Pong environment. 
+
+Increasing the learning rate produced much faster increases than the base learning rate, but it still took over a day of running to climb over 0 average reward, and results became erratic.
+
+Changing to the newer Pong environment using the DeepMind wrapper, which stacked four frames into the observation space, and going back to the default learning rate, gave us an average reward over +18 in under 2 hours!
+
+One weakness of Policy Gradient is that updates can change the policy too much. Next we'll talk about Proximal Policy Optimization as a way to address that shortcoming. 
+
+RESULTS AND COMPARISONS
+
+We ran the Policy Gradient, Proximal Policy Optimization, and Double Deep-Q Learning methods on both the baseline Pong_v0 environment and the wrapped Pong_v4 environment, with both the default one-ten-thousandth learning rate as well as the one-thousandth learning rate. 
+
+On Pong_v0, Proximal Policy Optimization did steadily better than Policy Gradient for both learning rates, for as long as we were able to run the algorithms. The Double Deep-Q Learning algorithm just didn't do well with Pong_v0 and we are looking into why that is.
+
+On wrapped Pong_v4 with the default one-ten-thousandth learning rate, all three algorithms reached +18 in around 1000 episodes or less, running for a few hours. Increasing the learning rate to one-thousandth produced erratic behavior. 
+
+This informal analysis uses imprecise terms because it reports on our exploratory runs of about two runs per configuration. As you can see in the "PG Runs" chart, the same configuration can produce varying results each run. So for the final paper, we will re-run select configurations a sufficient number of times in order to support a rigorous pair-wise statistical analysis using the F and t-tests. We simply did not have enough time before this presentation to run that many experiments after our implementation and exploratory work. 
+
